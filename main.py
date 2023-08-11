@@ -1,12 +1,22 @@
 import glob
 import logging
 import csv
+import argparse
 from src.python_schdoc.schdoc import Schematic
 from src.data_extractor import ComponentExtractor
 
 
-def get_schdoc_files_path():
-    test_files = [file for file in glob.iglob(r'.\sch_doc_test_files\*.SchDoc', recursive=True, include_hidden=True)]
+parser = argparse.ArgumentParser(description="Allows to parse Altium Designer .SchDoc files to extract component info",
+                                 formatter_class=argparse.ArgumentDefaultsHelpFormatter)
+parser.add_argument("-p", "--path", default="./sch_doc_test_files",
+                    help="Path to directory with .SchDoc files (relative is valid)")
+parser.add_argument("-r", "--report", default="./result.csv",
+                    help="""Path include name with .csv where you would like to generate result with 
+                    components (relative is valid)""")
+
+
+def get_schdoc_files_path(project_path):
+    test_files = [file for file in glob.glob(f'{project_path}/**/*.SchDoc', recursive=True)]
     return test_files
 
 
@@ -28,7 +38,10 @@ def sort_components(bom_components, file_components):
 
 
 if __name__ == "__main__":
-    schdoc_files = get_schdoc_files_path()
+    args = vars(parser.parse_args())
+    project_path = args['path']
+    report_name = args['report']
+    schdoc_files = get_schdoc_files_path(project_path)
     bom_components = []
     for schdoc_file in schdoc_files:
         schdoc = Schematic(schdoc_file).read()
@@ -36,7 +49,7 @@ if __name__ == "__main__":
         bom_components, file_components = sort_components(bom_components, file_components)
         logging.info(f"Finished parsing in ${schdoc_file}")
 
-    with open("result.csv", 'w', encoding='utf-8') as result:
+    with open(report_name, 'w', encoding='utf-8') as result:
         writer = csv.writer(result)
         writer.writerow(['PartNumber', 'Comment', "Description", "PartCount", "Designator"])
         for component in bom_components:
