@@ -3,3 +3,7 @@ test_project
 result.csv
 output.txt
 ./project
+build
+dist
+project
+src.egg-info
