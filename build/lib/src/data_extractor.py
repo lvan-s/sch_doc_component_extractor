@@ -1,5 +1,5 @@
-from src.python_schdoc.schdoc import Schematic
-from src.python_schdoc import records as types
+from sch_doc_parser.src.python_schdoc import Schematic
+from sch_doc_parser.src.python_schdoc import records as types
 
 
 class ComponentExtractor:

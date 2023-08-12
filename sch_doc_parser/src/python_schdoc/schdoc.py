@@ -1,6 +1,5 @@
-from src.python_schdoc import records as types
+from sch_doc_parser.src.python_schdoc import records as types
 import olefile
-import struct
 import zlib
 import logging
 
