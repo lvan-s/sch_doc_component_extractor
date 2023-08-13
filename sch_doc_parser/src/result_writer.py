@@ -10,7 +10,7 @@ class ResultWriter:
     def spawn_report(self, report_name):
         logging.info('Start write down result file')
         with open(report_name, 'w', encoding='utf-8') as result:
-            writer = csv.writer(result)
+            writer = csv.writer(result, delimiter=';')
             writer.writerow(['Part number', 'Comment', 'Footprint', "Description", "Manufacturer", "Qty"])
             for component in self.bom_components:
                 pn = component.part_number if component.part_number else ''
