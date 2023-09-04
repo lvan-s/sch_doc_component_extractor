@@ -24,6 +24,12 @@ Available options:
     python -m sch_doc_parser.main -r ./path/to/my_result.csv
   ```
   
+* `python main.py -d` or `--delimiter` - custom delimiter for the generated result file
+
+  ```commandline
+    python -m sch_doc_parser.main -d ";"
+```
+  
 If you need install this package you may use next command:
 ```commandline
 pip install git+https://github.com/lvan-s/sch_doc_component_extractor.git
