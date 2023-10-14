@@ -60,12 +60,17 @@ class Schematic:
         blocks = []
         streamer = DataStreamer(data)
         while not streamer.eof():
-            payload_size = streamer.read_int(2)
-            assert streamer.read_int(1) == 0, "Bad pad in header"
-            assert streamer.read_int(1) == 0, "Bad type in header"
-            payload = streamer.read(payload_size)
-            assert payload[-1] == 0, "Invalid ending byte"
-            blocks.append(payload[:-1].decode("latin1"))
+            try:
+                payload_size = streamer.read_int(2)
+                pad = streamer.read_int(1)
+                typ = streamer.read_int(1)
+                payload = streamer.read(payload_size)
+                assert pad == 0, "Bad pad in header"
+                assert typ == 0, "Bad type in header"
+                assert payload[-1] == 0, "Invalid ending byte"
+                blocks.append(payload[:-1].decode("latin1"))
+            except AssertionError as exp:
+                logging.warning(exp)
         if self.check_header(blocks[0]):
             return blocks[1:]
         return blocks

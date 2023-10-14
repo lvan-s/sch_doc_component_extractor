@@ -1,7 +1,8 @@
 import logging
 import glob
 from sch_doc_parser.src.python_schdoc.schdoc import Schematic
-from sch_doc_parser.src.data_extractor import ComponentExtractor, ComponentData
+from sch_doc_parser.src.python_schlib.schlib import SchematicLib
+from sch_doc_parser.src.data_extractor import SchematicComponentExtractor, SchematicLibComponentExtractor, ComponentData
 
 
 class ComponentSorter:
@@ -10,19 +11,37 @@ class ComponentSorter:
 
     def extract_sorted_components(self):
         schdoc_files = self.get_schdoc_files_path()
+        schlib_files = self.get_schlib_files_path()
         file_components = []
+        lib_components = []
         for schdoc_file in schdoc_files:
             schdoc = Schematic(schdoc_file).read()
-            file_components.extend(ComponentExtractor(schdoc).components)
+            file_components.extend(SchematicComponentExtractor(schdoc).components)
             logging.info(f'Finish extract component from {schdoc_file.rsplit("/", 1)[-1]}')
+        for schlib_file in schlib_files:
+            schlib = SchematicLib(schlib_file).read()
+            lib_components.append(SchematicLibComponentExtractor(schlib).get_component())
         logging.info('Components extraction completed. Start component sorting...')
         bom_components = self.sort_components(file_components)
+        for bom_component in bom_components:
+            if not bom_component.part_number:
+                for lib_component in lib_components:
+                    if lib_component.libref == bom_component.libref:
+                        bom_component.part_number = lib_component.part_number
+                        bom_component.manufacturer = lib_component.manufacturer if not bom_component.manufacturer else\
+                            bom_component.manufacturer
+                        bom_component.description = lib_component.description if not bom_component.description else\
+                            bom_component.description
         logging.info('Finish component sorting')
         return bom_components, file_components
 
     def get_schdoc_files_path(self):
-        test_files = [file for file in glob.glob(f'{self.project_path}/**/*.SchDoc', recursive=True)]
-        return test_files
+        files = [file for file in glob.glob(f'{self.project_path}/**/*.SchDoc', recursive=True)]
+        return files
+
+    def get_schlib_files_path(self):
+        files = [file for file in glob.glob(f'{self.project_path}/**/*.SchLib', recursive=True)]
+        return files
 
     def sort_components(self, file_components: list[ComponentData]):
         bom_components = [file_components.pop(0)]

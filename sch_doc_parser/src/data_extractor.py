@@ -1,10 +1,11 @@
 import logging
 
 from sch_doc_parser.src.python_schdoc.schdoc import Schematic
+from sch_doc_parser.src.python_schlib.schlib import SchematicLib
 from sch_doc_parser.src.python_schdoc import records as types
 
 
-class ComponentExtractor:
+class SchematicComponentExtractor:
     def __init__(self, schdoc: Schematic):
         self.records = schdoc.records
         self.components = self.extract_components()
@@ -44,6 +45,16 @@ class ComponentExtractor:
                 component_record = ComponentData(component_record).parse_related_records()
                 components.append(component_record)
         return components
+
+
+class SchematicLibComponentExtractor(SchematicComponentExtractor):
+    def __init__(self, schlib: SchematicLib):
+        self.records = schlib.records
+        self.part_number = schlib.part_number
+        self.component = self.extract_components()[0]
+
+    def get_component(self):
+        return self.component
 
 
 class ComponentData:
